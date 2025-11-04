@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login with OTP</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: skyblue;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: whitesmoke;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      text-align: center;
+      width: 300px;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 95%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login with OTP</h2>
+    
+    <!-- Step 1: Enter phone number -->
+    <div id="phone-section">
+      <input type="text" id="phone" placeholder="Enter mobile number" />
+      <button onclick="sendOTP()">Send OTP</button>
+    </div>
+    
+    <!-- Step 2: Enter OTP -->
+    <div id="otp-section" style="display:none;">
+      <input type="text" id="otp" placeholder="Enter OTP" />
+      <button onclick="verifyOTP()">Verify OTP</button>
+    </div>
+  </div>
+
+  <script>
+    function sendOTP() {
+      const phone = document.getElementById('phone').value;
+      if (phone.length !== 10) {
+        alert("Enter a valid 10-digit number");
+        return;
+      }
+      fetch('http://localhost:5000/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        if (data.success) {
+          document.getElementById('phone-section').style.display = 'none';
+          document.getElementById('otp-section').style.display = 'block';
+        }
+      });
+    }
+
+    function verifyOTP() {
+      const phone = document.getElementById('phone').value;
+      const otp = document.getElementById('otp').value;
+
+      fetch('http://localhost:5000/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, otp })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+        if (data.success) {
+          window.location.href = "firebase.html"; // redirect to your main page
+        }
+      });
+    }
+  </script>
+</body>
+</html>

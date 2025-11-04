@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login with OTP (Firebase)</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #E0F7FF, whitesmoke);
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      text-align: center;
+    }
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    button {
+      width: 95%;
+      padding: 10px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login with OTP</h2>9
+
+    <div id="phone-section">
+      <input type="text" id="phoneNumber" placeholder="Enter phone number" />
+      <div id="recaptcha-container"></div>
+      <button onclick="sendOTP()">Send OTP</button>
+    </div>
+
+    <div id="otp-section" style="display:none;">
+      <input type="text" id="otp" placeholder="Enter OTP" />
+      <button onclick="verifyOTP()">Verify OTP</button>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // ✅ Replace with your Firebase config from console
+    const firebaseConfig = {
+  apiKey: "AIzaSyDs9ewQlvxwaoHHiMOsBRQgZYgJJhAMj0I",
+  authDomain: "flash-flood-early-warning-sys.firebaseapp.com",
+  projectId: "flash-flood-early-warning-sys",
+  storageBucket: "flash-flood-early-warning-sys.firebasestorage.app",
+  messagingSenderId: "262955046933",
+  appId: "1:262955046933:web:06430f839ce97eb6a2161c",
+  measurementId: "G-VES5EC8506"
+};
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // 🔹 Render reCAPTCHA
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+      size: 'normal',
+      callback: function(response) {
+        console.log('reCAPTCHA solved');
+      }
+    });
+
+    // 🔹 Send OTP
+    function sendOTP() {
+      const phoneNumber = "+91" + document.getElementById('phoneNumber').value;
+      const appVerifier = window.recaptchaVerifier;
+
+      auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+        .then((confirmationResult) => {
+          window.confirmationResult = confirmationResult;
+          alert("OTP sent successfully!");
+          document.getElementById('phone-section').style.display = 'none';
+          document.getElementById('otp-section').style.display = 'block';
+        })
+        .catch((error) => {
+          alert(error.message);
+        });
+    }
+
+    // 🔹 Verify OTP
+    function verifyOTP() {
+      const otp = document.getElementById('otp').value;
+
+      window.confirmationResult.confirm(otp)
+        .then((result) => {
+          alert("Login successful!");
+          window.location.href = "main.html"; // Redirect to your main page
+        })
+        .catch((error) => {
+          alert("Invalid OTP, please try again.");
+        });
+    }
+  </script>
+</body>
+</html>
